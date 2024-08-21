@@ -1,16 +1,13 @@
 <script setup lang="ts">
 import { usePokePaginator } from '@/composables/usePokePaginator'
-import type { Pokemon } from '@/typings/Pokemon'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import PokeCard from '@/components/PokeCard.vue'
+import { useTeam } from '@/composables/useTeam'
 
 const { pokemons, goNextUrl, goPreviousUrl } = usePokePaginator()
 const isLoading = computed(() => pokemons.value === null)
 
-const myTeam = ref<Array<Pokemon>>([])
-
-function addPokemon(pokemon: Pokemon) {
-  myTeam.value.push(pokemon)
-}
+const { myTeam, addPokemon } = useTeam()
 </script>
 
 <template>
@@ -22,15 +19,14 @@ function addPokemon(pokemon: Pokemon) {
   </button>
 
   <div class="flex items-center flex-wrap w-full">
-    <div
+    <PokeCard
       v-for="pokemon in pokemons"
       :key="pokemon.name"
       @click="addPokemon(pokemon)"
-      class="border-black border m-3 cursor-pointer hover:bg-slate-300"
-    >
-      <img :src="pokemon.image" alt="" />
-      <h5>{{ pokemon.name }}</h5>
-    </div>
+      :style="{ backgroundColor: myTeam.has(pokemon.name) ? '#cbd5e1' : undefined }"
+      :name="pokemon.name"
+      :image="pokemon.image"
+    />
   </div>
-  <pre>{{myTeam}}</pre>
+  <pre>{{ myTeam }}</pre>
 </template>
