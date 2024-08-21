@@ -7,13 +7,12 @@ export type PokeStatType =
   | 'hp'
 
 export type PokeStat = { type: PokeStatType; baseStat: number }
-export type Evolution = {
-  evolves_to: EvolutionChain
+export type EvolutionChain = {
+  evolves_to: Array<EvolutionChain>
   species: {
     name: string
   }
 }
-export type EvolutionChain = Array<Evolution>
 
 export interface PokemonBasicInfo {
   id: number

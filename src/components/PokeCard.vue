@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { PokeStat } from '@/typings/Pokemon'
+import type { EvolutionChain, PokeStat } from '@/typings/Pokemon'
 
 interface Props {
   name: string
@@ -7,6 +7,8 @@ interface Props {
   cries: string
   types: Array<string>
   stats: Array<PokeStat>
+  description: string
+  evolutionChain: EvolutionChain
 }
 
 defineProps<Props>()
@@ -18,6 +20,8 @@ defineProps<Props>()
     <h5>{{ name }}</h5>
     <h5>{{ cries }}</h5>
     <h5>{{ types }}</h5>
-    <h5>{{ stats }}</h5>
+    <pre>{{ stats }}</pre>
+    <h5>{{ description }}</h5>
+    <pre>{{ evolutionChain }}</pre>
   </div>
 </template>

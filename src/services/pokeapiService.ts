@@ -1,4 +1,9 @@
-import type { Evolution, PokeStatType, PokemonBasicInfo, PokemonFullInfo } from '@/typings/Pokemon'
+import type {
+  EvolutionChain,
+  PokeStatType,
+  PokemonBasicInfo,
+  PokemonFullInfo
+} from '@/typings/Pokemon'
 import axios from 'axios'
 
 export const MAX_LIMIT_PER_PAGE = 25
@@ -6,10 +11,9 @@ export const TOTAL_POKEMONS = 151
 
 const POKEAPI_POKEMON = 'https://pokeapi.co/api/v2/pokemon/'
 const POKEAPI_POKEMON_SPECIES = 'https://pokeapi.co/api/v2/pokemon-species/'
-const POKEAPI_POKEMON_EVOLUTION_CHAIN = 'https://pokeapi.co/api/v2/evolution-chain/'
 
 type PokemonServiceResponse = {
-  id: number,
+  id: number
   name: string
   sprites: {
     front_default: string
@@ -43,6 +47,9 @@ type PokemonSpeciesServiceResponse = {
   color: {
     name: string
   }
+  evolution_chain: {
+    url: string
+  }
   flavor_text_entries: Array<{
     flavor_text: string
     language: {
@@ -57,7 +64,7 @@ type PokemonSpeciesServiceResponse = {
 }
 
 type EvolutionChainServiceResponse = {
-  chain: Evolution
+  chain: EvolutionChain
 }
 
 export async function paginatePokemonsByPage(page: number): Promise<Array<PokemonBasicInfo>> {
@@ -87,26 +94,24 @@ function getUrlByPage(page: number): string {
 }
 
 export async function getPokemonFullInfoById(id: number): Promise<PokemonFullInfo> {
-  const [pokemonBasicInfo, description, evolutionChain] = await Promise.all([
-    getPokemonBasicInfoByNameOrId(id),
-    axios
-      .get<PokemonSpeciesServiceResponse>(`${POKEAPI_POKEMON_SPECIES}${id}`)
-      .then((res) => res.data)
-      .then(
-        (response: PokemonSpeciesServiceResponse) => response.flavor_text_entries[0].flavor_text
-      ),
-    axios
-      .get<EvolutionChainServiceResponse>(`${POKEAPI_POKEMON_EVOLUTION_CHAIN}${id}`)
-      .then((res) => res.data)
-      .then((response: EvolutionChainServiceResponse) => response.chain.evolves_to)
-  ])
+  const pokemonBasicInfo = await getPokemonBasicInfoByNameOrId(id)
 
-  return { ...pokemonBasicInfo, description, evolutionChain }
+  const pokemonSpeciesServiceResponse = await axios
+    .get<PokemonSpeciesServiceResponse>(`${POKEAPI_POKEMON_SPECIES}${id}`)
+    .then((res) => res.data)
+
+  const evolutionChainServiceResponse = await axios
+    .get<EvolutionChainServiceResponse>(pokemonSpeciesServiceResponse.evolution_chain.url)
+    .then((res) => res.data)
+
+  return {
+    ...pokemonBasicInfo,
+    description: pokemonSpeciesServiceResponse.flavor_text_entries[0].flavor_text,
+    evolutionChain: evolutionChainServiceResponse.chain
+  }
 }
 
-export async function getPokemonBasicInfoByNameOrId(
-  nameOrId: string | number
-): Promise<PokemonBasicInfo> {
+async function getPokemonBasicInfoByNameOrId(nameOrId: string | number): Promise<PokemonBasicInfo> {
   const { data: response } = await axios.get<PokemonServiceResponse>(
     `${POKEAPI_POKEMON}${nameOrId}`
   )

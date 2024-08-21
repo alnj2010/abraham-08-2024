@@ -1,16 +1,16 @@
 <script setup lang="ts">
-import { getPokemonBasicInfoByNameOrId } from '@/services/pokeapiService'
-import type { PokemonBasicInfo } from '@/typings/Pokemon'
+import { getPokemonFullInfoById } from '@/services/pokeapiService'
+import type { PokemonFullInfo } from '@/typings/Pokemon'
 import { ref, watchEffect } from 'vue'
 import { useRoute } from 'vue-router'
 import PokeCard from '@/components/PokeCard.vue'
 
 const route = useRoute()
-const pokemon = ref<PokemonBasicInfo | null>(null)
+const pokemon = ref<PokemonFullInfo | null>(null)
 
 watchEffect(() => {
   pokemon.value = null
-  getPokemonBasicInfoByNameOrId(route.params.id as string).then((data) => (pokemon.value = data))
+  getPokemonFullInfoById(parseInt(route.params.id as string)).then((data) => (pokemon.value = data))
 })
 </script>
 
@@ -22,5 +22,7 @@ watchEffect(() => {
     :cries="pokemon.cries"
     :types="pokemon.types"
     :stats="pokemon.stats"
+    :description="pokemon.description"
+    :evolution-chain="pokemon.evolutionChain"
   />
 </template>
