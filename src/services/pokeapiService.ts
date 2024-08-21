@@ -1,4 +1,4 @@
-import type { Pokemon } from '@/typings/Pokemon'
+import type { PokeStatType, Pokemon } from '@/typings/Pokemon'
 import axios from 'axios'
 const POKE_API = 'https://pokeapi.co/api/v2/pokemon/'
 export const MAX_LIMIT_PER_PAGE = 25
@@ -9,6 +9,22 @@ type PokemonDTO = {
   sprites: {
     front_default: string
   }
+  cries: { latest: string }
+  types: Array<{
+    slot: number
+    type: {
+      name: string
+    }
+  }>
+  height: number
+  weight: number
+  stats: Array<{
+    base_stat: number
+    stat: {
+      name: PokeStatType
+      url: string
+    }
+  }>
 }
 
 type PaginatorPageItem = {
@@ -22,7 +38,12 @@ export async function getPokemonByName(name: string): Promise<Pokemon> {
   const { data: pokemonDto } = await axios.get<PokemonDTO>(`${POKE_API}${name}`)
   const pokemon: Pokemon = {
     name: pokemonDto.name,
-    image: pokemonDto.sprites.front_default
+    image: pokemonDto.sprites.front_default,
+    cries: pokemonDto.cries.latest,
+    types: pokemonDto.types.map((item) => item.type.name),
+    height: pokemonDto.height,
+    weight: pokemonDto.weight,
+    stats: pokemonDto.stats.map((item) => ({ baseStat: item.base_stat, type: item.stat.name }))
   }
   return pokemon
 }

@@ -1,10 +1,8 @@
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
 import type { Pokemon } from '@/typings/Pokemon'
-import { ref, type Ref } from 'vue'
 
-export function useTeam(): {
-  myTeam: Ref<Map<string, Pokemon>>
-  addPokemon: (pokemon: Pokemon) => void
-} {
+export const useTeamStore = defineStore('team', () => {
   const myTeam = ref<Map<string, Pokemon>>(new Map())
 
   function addPokemon(pokemon: Pokemon) {
@@ -15,4 +13,4 @@ export function useTeam(): {
     }
   }
   return { myTeam, addPokemon }
-}
+})

@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import { usePokePaginator } from '@/composables/usePokePaginator'
 import { computed } from 'vue'
-import PokeCard from '@/components/PokeCard.vue'
-import { useTeam } from '@/composables/useTeam'
+import PokePageCard from '@/components/PokePageCard.vue'
+import { useTeamStore } from '@/stores/team'
 
 const { pokemons, goNextUrl, goPreviousUrl } = usePokePaginator()
 const isLoading = computed(() => pokemons.value === null)
-
-const { myTeam, addPokemon } = useTeam()
+const { addPokemon, myTeam } = useTeamStore()
 </script>
 
 <template>
@@ -19,7 +18,7 @@ const { myTeam, addPokemon } = useTeam()
   </button>
 
   <div class="flex items-center flex-wrap w-full">
-    <PokeCard
+    <PokePageCard
       v-for="pokemon in pokemons"
       :key="pokemon.name"
       @click="addPokemon(pokemon)"
@@ -28,5 +27,4 @@ const { myTeam, addPokemon } = useTeam()
       :image="pokemon.image"
     />
   </div>
-  <pre>{{ myTeam }}</pre>
 </template>
