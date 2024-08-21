@@ -24,7 +24,7 @@ const router = createRouter({
       beforeEnter: (to) => {
         // TODO remember redirect to home
         const { myTeam } = useTeamStore()
-        return myTeam.has(to.params.id as string)
+        return myTeam.has(parseInt(to.params.id as string))
       }
     }
   ]

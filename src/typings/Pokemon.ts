@@ -7,8 +7,16 @@ export type PokeStatType =
   | 'hp'
 
 export type PokeStat = { type: PokeStatType; baseStat: number }
+export type Evolution = {
+  evolves_to: EvolutionChain
+  species: {
+    name: string
+  }
+}
+export type EvolutionChain = Array<Evolution>
 
-export interface Pokemon {
+export interface PokemonBasicInfo {
+  id: number
   name: string
   image: string
   cries: string
@@ -16,11 +24,9 @@ export interface Pokemon {
   height: number
   weight: number
   stats: Array<PokeStat>
-  //description: //https://pokeapi.co/api/v2/pokemon-species/name
-  //evolutionChain: https://pokeapi.co/api/v2/evolution-chain/name/
 }
 
-export interface PokemonDetailed extends Pokemon{
-  description: string;
-  //evolutionChain: https://pokeapi.co/api/v2/evolution-chain/name/
+export interface PokemonFullInfo extends PokemonBasicInfo {
+  description: string
+  evolutionChain: EvolutionChain
 }

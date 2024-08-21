@@ -1,10 +1,15 @@
-import type { PokeStatType, Pokemon } from '@/typings/Pokemon'
+import type { Evolution, PokeStatType, PokemonBasicInfo, PokemonFullInfo } from '@/typings/Pokemon'
 import axios from 'axios'
-const POKE_API = 'https://pokeapi.co/api/v2/pokemon/'
+
 export const MAX_LIMIT_PER_PAGE = 25
 export const TOTAL_POKEMONS = 151
 
-type PokemonDTO = {
+const POKEAPI_POKEMON = 'https://pokeapi.co/api/v2/pokemon/'
+const POKEAPI_POKEMON_SPECIES = 'https://pokeapi.co/api/v2/pokemon-species/'
+const POKEAPI_POKEMON_EVOLUTION_CHAIN = 'https://pokeapi.co/api/v2/evolution-chain/'
+
+type PokemonServiceResponse = {
+  id: number,
   name: string
   sprites: {
     front_default: string
@@ -27,35 +32,43 @@ type PokemonDTO = {
   }>
 }
 
-type PaginatorPageItem = {
+type PaginatorPage = {
   name: string
 }
-type PaginatorPageResult = {
-  results: Array<PaginatorPageItem>
+type PaginatorServiceResponse = {
+  results: Array<PaginatorPage>
 }
 
-export async function getPokemonByName(name: string): Promise<Pokemon> {
-  const { data: pokemonDto } = await axios.get<PokemonDTO>(`${POKE_API}${name}`)
-  const pokemon: Pokemon = {
-    name: pokemonDto.name,
-    image: pokemonDto.sprites.front_default,
-    cries: pokemonDto.cries.latest,
-    types: pokemonDto.types.map((item) => item.type.name),
-    height: pokemonDto.height,
-    weight: pokemonDto.weight,
-    stats: pokemonDto.stats.map((item) => ({ baseStat: item.base_stat, type: item.stat.name }))
+type PokemonSpeciesServiceResponse = {
+  color: {
+    name: string
   }
-  return pokemon
+  flavor_text_entries: Array<{
+    flavor_text: string
+    language: {
+      name: string
+      url: string
+    }
+    version: {
+      name: string
+      url: string
+    }
+  }>
 }
 
-export async function paginatePokemonsByPage(page: number): Promise<Array<Pokemon>> {
+type EvolutionChainServiceResponse = {
+  chain: Evolution
+}
+
+export async function paginatePokemonsByPage(page: number): Promise<Array<PokemonBasicInfo>> {
   const url = getUrlByPage(page)
+
   const pokemons = await axios
-    .get<PaginatorPageResult>(url)
+    .get<PaginatorServiceResponse>(url)
     .then((res) => res.data)
-    .then((paginatorPageResult: PaginatorPageResult) =>
-      Promise.all<Array<Promise<Pokemon>>>(
-        paginatorPageResult.results.map(async (item) => getPokemonByName(item.name))
+    .then((response: PaginatorServiceResponse) =>
+      Promise.all<Array<Promise<PokemonBasicInfo>>>(
+        response.results.map(async (item) => getPokemonBasicInfoByNameOrId(item.name))
       )
     )
 
@@ -70,5 +83,42 @@ function getUrlByPage(page: number): string {
     limit: limit.toString(),
     offset: offset.toString()
   }).toString()
-  return `${POKE_API}?${nextQueryString}`
+  return `${POKEAPI_POKEMON}?${nextQueryString}`
+}
+
+export async function getPokemonFullInfoById(id: number): Promise<PokemonFullInfo> {
+  const [pokemonBasicInfo, description, evolutionChain] = await Promise.all([
+    getPokemonBasicInfoByNameOrId(id),
+    axios
+      .get<PokemonSpeciesServiceResponse>(`${POKEAPI_POKEMON_SPECIES}${id}`)
+      .then((res) => res.data)
+      .then(
+        (response: PokemonSpeciesServiceResponse) => response.flavor_text_entries[0].flavor_text
+      ),
+    axios
+      .get<EvolutionChainServiceResponse>(`${POKEAPI_POKEMON_EVOLUTION_CHAIN}${id}`)
+      .then((res) => res.data)
+      .then((response: EvolutionChainServiceResponse) => response.chain.evolves_to)
+  ])
+
+  return { ...pokemonBasicInfo, description, evolutionChain }
+}
+
+export async function getPokemonBasicInfoByNameOrId(
+  nameOrId: string | number
+): Promise<PokemonBasicInfo> {
+  const { data: response } = await axios.get<PokemonServiceResponse>(
+    `${POKEAPI_POKEMON}${nameOrId}`
+  )
+  const pokemon: PokemonBasicInfo = {
+    id: response.id,
+    name: response.name,
+    image: response.sprites.front_default,
+    cries: response.cries.latest,
+    types: response.types.map((item) => item.type.name),
+    height: response.height,
+    weight: response.weight,
+    stats: response.stats.map((item) => ({ baseStat: item.base_stat, type: item.stat.name }))
+  }
+  return pokemon
 }

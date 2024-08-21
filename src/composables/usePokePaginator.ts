@@ -1,5 +1,5 @@
 import { computed, ref, watchEffect, type Ref } from 'vue'
-import type { Pokemon } from '@/typings/Pokemon'
+import type { PokemonBasicInfo } from '@/typings/Pokemon'
 import {
   MAX_LIMIT_PER_PAGE,
   TOTAL_POKEMONS,
@@ -7,7 +7,7 @@ import {
 } from '@/services/pokeapiService'
 
 export function usePokePaginator(): {
-  pokemons: Ref<Array<Pokemon> | null>
+  pokemons: Ref<Array<PokemonBasicInfo> | null>
   currentPage: Ref<Number>
   error: Ref<any>
   isThereNextPage: Ref<boolean>
@@ -24,7 +24,7 @@ export function usePokePaginator(): {
     error.value = null
 
     paginatePokemonsByPage(page.value)
-      .then((data: Array<Pokemon>) => (pokemons.value = data))
+      .then((data: Array<PokemonBasicInfo>) => (pokemons.value = data))
       .catch((err) => (error.value = err))
   })
 

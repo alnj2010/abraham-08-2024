@@ -22,7 +22,7 @@ const { addPokemon, myTeam } = useTeamStore()
       v-for="pokemon in pokemons"
       :key="pokemon.name"
       @click="addPokemon(pokemon)"
-      :style="{ backgroundColor: myTeam.has(pokemon.name) ? '#cbd5e1' : undefined }"
+      :style="{ backgroundColor: myTeam.has(pokemon.id) ? '#cbd5e1' : undefined }"
       :name="pokemon.name"
       :image="pokemon.image"
     />
