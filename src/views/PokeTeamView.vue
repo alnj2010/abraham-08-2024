@@ -7,16 +7,17 @@ const { myTeam } = useTeamStore()
 
 <template>
   <div>
-    <div class="flex items-center flex-wrap w-full">
-      <div v-for="[id, pokemon] in myTeam" :key="id">
+    <div class="flex items-center justify-around flex-wrap w-full">
+      <div v-for="[id, pokemon] in myTeam" :key="id" class="m-1">
         <PokeTeamCard
+          :id="id"
+          :color="pokemon.color"
           :name="pokemon.name"
-          :image="pokemon.image"
+          :image="pokemon.image.big"
           :cries="pokemon.cries"
           :types="pokemon.types"
           :stats="pokemon.stats"
         />
-        <RouterLink :to="`/team/${id}`">go to {{ id }}</RouterLink>
       </div>
     </div>
   </div>

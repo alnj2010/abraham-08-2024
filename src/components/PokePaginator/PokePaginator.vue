@@ -8,7 +8,7 @@ import { useTeamStore } from '@/stores/team'
 const { pokemons, goNextUrl, goPreviousUrl, isThereNextPage, isTherePreviousPage } =
   usePokePaginator()
 const isLoading = computed(() => pokemons.value === null)
-const { addPokemon, myTeam } = useTeamStore()
+const { togglePokemon, myTeam } = useTeamStore()
 </script>
 
 <template>
@@ -41,11 +41,11 @@ const { addPokemon, myTeam } = useTeamStore()
         <div class="flex items-center justify-center flex-wrap">
           <div class="m-1" v-for="pokemon in pokemons" :key="pokemon.name">
             <PokePageCard
-              @click="addPokemon(pokemon)"
+              @click="togglePokemon(pokemon)"
               :is-selected="myTeam.has(pokemon.id)"
               :can-be-selected="myTeam.size < 6 || myTeam.has(pokemon.id)"
               :name="pokemon.name"
-              :image="pokemon.image"
+              :image="pokemon.image.small"
               :color="pokemon.color"
             />
           </div>

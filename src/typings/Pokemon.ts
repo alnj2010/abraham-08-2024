@@ -6,7 +6,31 @@ export type PokeStatType =
   | 'attack'
   | 'hp'
 
-export type PokeStat = { type: PokeStatType; baseStat: number }
+export type PokeTypes =
+  | 'normal'
+  | 'fire'
+  | 'water'
+  | 'electric'
+  | 'grass'
+  | 'ice'
+  | 'fighting'
+  | 'poison'
+  | 'ground'
+  | 'flying'
+  | 'psychic'
+  | 'bug'
+  | 'rock'
+  | 'ghost'
+  | 'dragon'
+  | 'dark'
+  | 'steel'
+  | 'fairy'
+  | 'stellar'
+  | 'unknown'
+
+export type PokemonType = { type: PokeTypes; color: string }
+
+export type PokeStat = { type: string; baseStat: number }
 export type EvolutionChain = {
   evolves_to: Array<EvolutionChain>
   species: {
@@ -17,17 +41,16 @@ export type EvolutionChain = {
 export interface PokemonBasicInfo {
   id: number
   name: string
-  image: string
+  image: { small: string; big: string }
   cries: string
-  types: Array<string>
+  types: Array<PokemonType>
   height: number
   weight: number
   stats: Array<PokeStat>
-  description: string
-  evolutionChainUrl: string
   color: string
 }
 
 export interface PokemonFullInfo extends PokemonBasicInfo {
   evolutionChain: EvolutionChain
+  description: string
 }

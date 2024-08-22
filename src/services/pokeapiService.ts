@@ -1,6 +1,7 @@
 import type {
   EvolutionChain,
   PokeStatType,
+  PokeTypes,
   PokemonBasicInfo,
   PokemonFullInfo
 } from '@/typings/Pokemon'
@@ -11,17 +12,7 @@ export const TOTAL_POKEMONS = 151
 
 const POKEAPI_POKEMON = 'https://pokeapi.co/api/v2/pokemon/'
 const POKEAPI_POKEMON_SPECIES = 'https://pokeapi.co/api/v2/pokemon-species/'
-type PokeColor =
-  | 'black'
-  | 'blue'
-  | 'brown'
-  | 'gray'
-  | 'green'
-  | 'pink'
-  | 'purple'
-  | 'red'
-  | 'white'
-  | 'yellow'
+
 type PokemonServiceResponse = {
   id: number
   name: string
@@ -37,7 +28,7 @@ type PokemonServiceResponse = {
   types: Array<{
     slot: number
     type: {
-      name: string
+      name: PokeTypes
     }
   }>
   height: number
@@ -59,9 +50,6 @@ type PaginatorServiceResponse = {
 }
 
 type PokemonSpeciesServiceResponse = {
-  color: {
-    name: PokeColor
-  }
   evolution_chain: {
     url: string
   }
@@ -81,17 +69,35 @@ type PokemonSpeciesServiceResponse = {
 type EvolutionChainServiceResponse = {
   chain: EvolutionChain
 }
-const COLOR_MAPPER: Record<PokeColor, string> = {
-  black: '#424448',
-  blue: '#76BDFE',
-  brown: '#8C837E',
-  gray: '#91B6C3',
-  green: '#46D1B1',
-  pink: '#CAD2DF',
-  purple: '#8B4790',
-  red: '#FB6C6C',
-  white: '#CDD5E2',
-  yellow: '#FFD970'
+const COLOR_MAPPER: Record<PokeTypes, string> = {
+  normal: '#A8A77A',
+  fire: '#EE8130',
+  water: '#6390F0',
+  electric: '#F7D02C',
+  grass: '#7AC74C',
+  ice: '#96D9D6',
+  fighting: '#C22E28',
+  poison: '#A33EA1',
+  ground: '#E2BF65',
+  flying: '#A98FF3',
+  psychic: '#F95587',
+  bug: '#A6B91A',
+  rock: '#B6A136',
+  ghost: '#735797',
+  dragon: '#6F35FC',
+  dark: '#705746',
+  steel: '#B7B7CE',
+  fairy: '#D685AD',
+  stellar: '#777',
+  unknown: '#777'
+}
+const STATS_MAPPER: Record<PokeStatType, string> = {
+  speed: 'sp',
+  'special-defense': 'sp. def',
+  'special-attack': 'sp-atk',
+  defense: 'def',
+  attack: 'atk',
+  hp: 'hp'
 }
 
 export async function paginatePokemonsByPage(page: number): Promise<Array<PokemonBasicInfo>> {
@@ -123,13 +129,18 @@ function getUrlByPage(page: number): string {
 export async function getPokemonFullInfoById(id: number): Promise<PokemonFullInfo> {
   const pokemonBasicInfo = await getPokemonBasicInfoByNameOrId(id)
 
+  const pokemonSpeciesServiceResponse = await axios
+    .get<PokemonSpeciesServiceResponse>(`${POKEAPI_POKEMON_SPECIES}${id}`)
+    .then((res) => res.data)
+
   const evolutionChainServiceResponse = await axios
-    .get<EvolutionChainServiceResponse>(pokemonBasicInfo.evolutionChainUrl)
+    .get<EvolutionChainServiceResponse>(pokemonSpeciesServiceResponse.evolution_chain.url)
     .then((res) => res.data)
 
   return {
     ...pokemonBasicInfo,
-    evolutionChain: evolutionChainServiceResponse.chain
+    evolutionChain: evolutionChainServiceResponse.chain,
+    description: pokemonSpeciesServiceResponse.flavor_text_entries[0].flavor_text
   }
 }
 
@@ -137,23 +148,29 @@ async function getPokemonBasicInfoByNameOrId(nameOrId: string | number): Promise
   const { data: response } = await axios.get<PokemonServiceResponse>(
     `${POKEAPI_POKEMON}${nameOrId}`
   )
-
-  const pokemonSpeciesServiceResponse = await axios
-    .get<PokemonSpeciesServiceResponse>(`${POKEAPI_POKEMON_SPECIES}${nameOrId}`)
-    .then((res) => res.data)
+  const type = response.types.find((type) => type.slot === 1)
+  if (type) {
+  }
 
   const pokemon: PokemonBasicInfo = {
     id: response.id,
     name: response.name,
-    image: response.sprites.front_default,
+    image: {
+      small: response.sprites.front_default,
+      big: response.sprites.other.dream_world.front_default
+    },
     cries: response.cries.latest,
-    types: response.types.map((item) => item.type.name),
+    types: response.types.map((item) => ({
+      type: item.type.name,
+      color: COLOR_MAPPER[item.type.name]
+    })),
     height: response.height,
     weight: response.weight,
-    stats: response.stats.map((item) => ({ baseStat: item.base_stat, type: item.stat.name })),
-    description: pokemonSpeciesServiceResponse.flavor_text_entries[0].flavor_text,
-    evolutionChainUrl: pokemonSpeciesServiceResponse.evolution_chain.url,
-    color: COLOR_MAPPER[pokemonSpeciesServiceResponse.color.name]
+    stats: response.stats.map((item) => ({
+      baseStat: item.base_stat,
+      type: STATS_MAPPER[item.stat.name]
+    })),
+    color: type ? COLOR_MAPPER[type.type.name] : '#777'
   }
   return pokemon
 }

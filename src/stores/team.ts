@@ -5,12 +5,16 @@ import type { PokemonBasicInfo } from '@/typings/Pokemon'
 export const useTeamStore = defineStore('team', () => {
   const myTeam = ref<Map<number, PokemonBasicInfo>>(new Map())
 
-  function addPokemon(pokemon: PokemonBasicInfo) {
+  function togglePokemon(pokemon: PokemonBasicInfo) {
     if (myTeam.value.has(pokemon.id)) {
       myTeam.value.delete(pokemon.id)
     } else if (myTeam.value.size < 6) {
       myTeam.value.set(pokemon.id, pokemon)
     }
   }
-  return { myTeam, addPokemon }
+
+  function removePokemon(id: number) {
+    myTeam.value.delete(id)
+  }
+  return { myTeam, togglePokemon, removePokemon }
 })
