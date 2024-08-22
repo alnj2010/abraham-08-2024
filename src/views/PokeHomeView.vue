@@ -3,7 +3,7 @@ import PokePaginator from '@/components/PokePaginator/PokePaginator.vue'
 </script>
 
 <template>
-  <div class="w-full md:w-3/4 mx-auto my-4 flex justify-center">
+  <div class=" bg-[#FB6C6C] h-[93.7vh] w-full py-4 flex justify-center">
     <PokePaginator />
   </div>
 </template>

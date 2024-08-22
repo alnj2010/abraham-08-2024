@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { EvolutionChain, PokemonBasicInfo } from '@/typings/Pokemon'
 import EvolutionChainComponent from '@/components/EvolutionChainComponent.vue'
-import { ref, watchEffect } from 'vue'
+import { ref } from 'vue'
 import { getPokemonBasicInfoByNameOrId } from '@/services/pokeapiService'
 
 interface Props {

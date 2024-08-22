@@ -17,8 +17,8 @@ const { togglePokemon, myTeam } = useTeamStore()
       <div class="block md:hidden">
         <ControlNext v-if="!isLoading" @click="goPreviousUrl" :disabled="!isTherePreviousPage" />
       </div>
-      <div class="">
-        You have got <strong>{{ myTeam.size }}</strong> of <strong>6</strong> pokemons
+      <div class="text-lg text-white font-bold">
+        You have caught <strong>{{ myTeam.size }}</strong> of <strong>6</strong> pokemons
       </div>
       <div class="block md:hidden">
         <ControlNext
