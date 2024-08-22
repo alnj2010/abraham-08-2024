@@ -6,7 +6,7 @@ const { myTeam } = useTeamStore()
 </script>
 
 <template>
-  <div>
+  <div class="my-4">
     <div class="flex items-center justify-around flex-wrap w-full">
       <div v-for="[id, pokemon] in myTeam" :key="id" class="m-1">
         <PokeTeamCard

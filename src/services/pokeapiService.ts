@@ -144,13 +144,11 @@ export async function getPokemonFullInfoById(id: number): Promise<PokemonFullInf
   }
 }
 
-async function getPokemonBasicInfoByNameOrId(nameOrId: string | number): Promise<PokemonBasicInfo> {
+export async function getPokemonBasicInfoByNameOrId(nameOrId: string | number): Promise<PokemonBasicInfo> {
   const { data: response } = await axios.get<PokemonServiceResponse>(
     `${POKEAPI_POKEMON}${nameOrId}`
   )
   const type = response.types.find((type) => type.slot === 1)
-  if (type) {
-  }
 
   const pokemon: PokemonBasicInfo = {
     id: response.id,

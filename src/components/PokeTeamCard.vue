@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { PokeStat, PokemonType } from '@/typings/Pokemon'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import StatGraph from '@/components/StatGraph.vue'
 import PokeAudio from '@/components/PokeAudio.vue'

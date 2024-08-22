@@ -23,8 +23,8 @@ const router = createRouter({
       component: PokeDetailView,
       beforeEnter: (to) => {
         // TODO remember redirect to home
-        const { myTeam } = useTeamStore()
-        return myTeam.has(parseInt(to.params.id as string))
+        //const { myTeam } = useTeamStore()
+        //return myTeam.has(parseInt(to.params.id as string))
       }
     }
   ]
