@@ -1,17 +1,15 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
+import NavBar from '@/components/NavBar.vue'
 </script>
 
 <template>
   <header>
-    <nav>
-      <RouterLink class="m-3" to="/">Home</RouterLink>
-
-      <RouterLink class="m-3" to="/team">Team</RouterLink>
-    </nav>
+    <NavBar/>
   </header>
-
-  <RouterView />
+  <main class="mt-5">
+    <RouterView />
+  </main>
 </template>
 
 <style scoped></style>

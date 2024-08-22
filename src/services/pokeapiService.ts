@@ -11,12 +11,27 @@ export const TOTAL_POKEMONS = 151
 
 const POKEAPI_POKEMON = 'https://pokeapi.co/api/v2/pokemon/'
 const POKEAPI_POKEMON_SPECIES = 'https://pokeapi.co/api/v2/pokemon-species/'
-
+type PokeColor =
+  | 'black'
+  | 'blue'
+  | 'brown'
+  | 'gray'
+  | 'green'
+  | 'pink'
+  | 'purple'
+  | 'red'
+  | 'white'
+  | 'yellow'
 type PokemonServiceResponse = {
   id: number
   name: string
   sprites: {
     front_default: string
+    other: {
+      dream_world: {
+        front_default: string
+      }
+    }
   }
   cries: { latest: string }
   types: Array<{
@@ -45,7 +60,7 @@ type PaginatorServiceResponse = {
 
 type PokemonSpeciesServiceResponse = {
   color: {
-    name: string
+    name: PokeColor
   }
   evolution_chain: {
     url: string
@@ -65,6 +80,18 @@ type PokemonSpeciesServiceResponse = {
 
 type EvolutionChainServiceResponse = {
   chain: EvolutionChain
+}
+const COLOR_MAPPER: Record<PokeColor, string> = {
+  black: '#424448',
+  blue: '#76BDFE',
+  brown: '#8C837E',
+  gray: '#91B6C3',
+  green: '#46D1B1',
+  pink: '#CAD2DF',
+  purple: '#8B4790',
+  red: '#FB6C6C',
+  white: '#CDD5E2',
+  yellow: '#FFD970'
 }
 
 export async function paginatePokemonsByPage(page: number): Promise<Array<PokemonBasicInfo>> {
@@ -96,17 +123,12 @@ function getUrlByPage(page: number): string {
 export async function getPokemonFullInfoById(id: number): Promise<PokemonFullInfo> {
   const pokemonBasicInfo = await getPokemonBasicInfoByNameOrId(id)
 
-  const pokemonSpeciesServiceResponse = await axios
-    .get<PokemonSpeciesServiceResponse>(`${POKEAPI_POKEMON_SPECIES}${id}`)
-    .then((res) => res.data)
-
   const evolutionChainServiceResponse = await axios
-    .get<EvolutionChainServiceResponse>(pokemonSpeciesServiceResponse.evolution_chain.url)
+    .get<EvolutionChainServiceResponse>(pokemonBasicInfo.evolutionChainUrl)
     .then((res) => res.data)
 
   return {
     ...pokemonBasicInfo,
-    description: pokemonSpeciesServiceResponse.flavor_text_entries[0].flavor_text,
     evolutionChain: evolutionChainServiceResponse.chain
   }
 }
@@ -115,6 +137,11 @@ async function getPokemonBasicInfoByNameOrId(nameOrId: string | number): Promise
   const { data: response } = await axios.get<PokemonServiceResponse>(
     `${POKEAPI_POKEMON}${nameOrId}`
   )
+
+  const pokemonSpeciesServiceResponse = await axios
+    .get<PokemonSpeciesServiceResponse>(`${POKEAPI_POKEMON_SPECIES}${nameOrId}`)
+    .then((res) => res.data)
+
   const pokemon: PokemonBasicInfo = {
     id: response.id,
     name: response.name,
@@ -123,7 +150,10 @@ async function getPokemonBasicInfoByNameOrId(nameOrId: string | number): Promise
     types: response.types.map((item) => item.type.name),
     height: response.height,
     weight: response.weight,
-    stats: response.stats.map((item) => ({ baseStat: item.base_stat, type: item.stat.name }))
+    stats: response.stats.map((item) => ({ baseStat: item.base_stat, type: item.stat.name })),
+    description: pokemonSpeciesServiceResponse.flavor_text_entries[0].flavor_text,
+    evolutionChainUrl: pokemonSpeciesServiceResponse.evolution_chain.url,
+    color: COLOR_MAPPER[pokemonSpeciesServiceResponse.color.name]
   }
   return pokemon
 }

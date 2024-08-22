@@ -23,9 +23,11 @@ export interface PokemonBasicInfo {
   height: number
   weight: number
   stats: Array<PokeStat>
+  description: string
+  evolutionChainUrl: string
+  color: string
 }
 
 export interface PokemonFullInfo extends PokemonBasicInfo {
-  description: string
   evolutionChain: EvolutionChain
 }
